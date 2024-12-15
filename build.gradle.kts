@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.8.0" // Ou uma versão mais recente se necessário
-    kotlin("plugin.serialization") version "1.8.0"
+    application
+    kotlin("jvm") version "1.8.0" // ou a versão que você está usando
 }
 
 repositories {
@@ -8,10 +8,13 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-core-jvm:2.3.0")
-    implementation("io.ktor:ktor-server-netty-jvm:2.3.0")
-    implementation("io.ktor:ktor-server-content-negotiation-jvm:2.3.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("io.ktor:ktor-server-core:2.3.0") // Verifique a versão mais recente
+    implementation("io.ktor:ktor-server-netty:2.3.0") // Para usar o Netty como servidor
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.0") // Para serialização JSON
+    implementation("io.ktor:ktor-server-content-negotiation:2.3.0") // Para Content Negotiation
+    testImplementation("io.ktor:ktor-server-tests:2.3.0") // Para testes
 }
 
+application {
+    mainClass.set("com.example.ApplicationKt") // Altere para o seu pacote
+}

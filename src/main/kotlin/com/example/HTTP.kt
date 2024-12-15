@@ -1,55 +1,42 @@
-import io.ktor.application.*
-import io.ktor.features.StatusPages
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.routing.*
-import io.ktor.server.response.respond
-import io.ktor.server.request.receive
-import io.ktor.features.ContentNegotiation
-import io.ktor.serialization.kotlinx.json.*
+package com.example
 
-fun Application.module() {
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.features.ContentNegotiation
+
+fun Application.configureHTTP() {
     // Instala a configuração de Content Negotiation
     install(ContentNegotiation) {
         json() // Configura o Ktor para usar JSON como formato de resposta
     }
 
-    // Configuração de Status Pages para tratamento de exceções
-    install(StatusPages) {
-        exception<Throwable> { cause ->
-            // Retorna erro 500 para exceções não tratadas
-            call.respond(HttpStatusCode.InternalServerError, "Internal Server Error: ${cause.localizedMessage}")
-        }
-        exception<NoSuchElementException> { cause ->
-            // Retorna erro 404 para exceções do tipo NoSuchElementException
-            call.respond(HttpStatusCode.NotFound, "Resource Not Found: ${cause.localizedMessage}")
-        }
-    }
-
-    // Configuração de Roteamento
     routing {
-        get("/") {
-            call.respondText("Welcome to the Bookstore API!")
+        // Rota para obter uma lista de itens
+        get("/items") {
+            val items = listOf("Item 1", "Item 2", "Item 3") // Exemplo de lista de itens
+            call.respond(HttpStatusCode.OK, items)
         }
 
-        get("/error") {
-            // Lançando uma exceção de exemplo para testar o tratamento de erro
-            throw IllegalArgumentException("An error occurred in /error endpoint!")
+        // Rota para obter um item específico
+        get("/items/{id}") {
+            val id = call.parameters["id"] ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing ID")
+            call.respond(HttpStatusCode.OK, "Item $id")
         }
 
-        // Rota para simular um livro
-        get("/books") {
-            call.respondText("List of books will go here.")
+        // Rota para adicionar um novo item
+        post("/items") {
+            val item = call.receive<String>() // Recebe um item como String
+            call.respond(HttpStatusCode.Created, "Item '$item' added successfully!")
         }
 
-        // Endpoint para adicionar um livro
-        post("/books") {
-            // Recebe um livro via POST e simula a criação
-            val book = call.receive<Book>()
-            call.respond(HttpStatusCode.Created, "Book '${book.title}' added successfully!")
+        // Rota para deletar um item
+        delete("/items/{id}") {
+            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "Missing ID")
+            call.respond(HttpStatusCode.OK, "Item $id deleted successfully!")
         }
     }
 }
-
-// Definindo uma classe de modelo `Book`
-data class Book(val id: Int, val title: String, val author: String, val genre: String)
